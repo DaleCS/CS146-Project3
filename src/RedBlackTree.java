@@ -1,32 +1,6 @@
 public class RedBlackTree<Key extends Comparable<Key>> 
 {	
-		private RedBlackTree.Node<Key> root;
-
-		public static class Node<Key extends Comparable<Key>> 
-		{ //changed to static 
-			
-			  Key key;  		  
-			  Node<Key> parent;
-			  Node<Key> leftChild;
-			  Node<Key> rightChild;
-			  boolean isRed;
-			  int color;					// 1 = red, 0 = black
-			  
-			  public Node(Key data)
-			  {
-				  this.key = data;
-				  parent = null;
-				  leftChild = null;
-				  rightChild = null;
-				  isRed = false;
-				  color = 0;
-			  }		
-			  
-			  public int compareTo(Node<Key> n)
-			  { //this < that  <0
-				  return key.compareTo(n.key);  	//this > that  >0
-			  }
-		}
+		public Node<Key> root;
 
 		public boolean isLeaf(Node<Key> n)
 		{
@@ -39,15 +13,6 @@ public class RedBlackTree<Key extends Comparable<Key>>
 				  return true;
 			  }
 			  return false;
-		}
-		
-		public interface Visitor<Key extends Comparable<Key>> 
-		{
-			/**
-			This method is called at each node.
-			@param n the visited node
-			*/
-			void visit(Node<Key> n);  
 		}
 		
 		public void visit(Node<Key> n)
@@ -72,7 +37,12 @@ public class RedBlackTree<Key extends Comparable<Key>>
 			printTree(node.rightChild);
 		}
 		
-		// place a new node in the RB tree with data the parameter and color it red. 
+		/**
+		 * Adds a new node using the given data and places it in the BST adhering to BST properties
+		 * then colors the node red
+		 * @param data
+		 * @return
+		 */
 		public Node<Key> addNode(Key data)
 		{
 			Node<Key> newNode = new Node(data);
@@ -108,20 +78,24 @@ public class RedBlackTree<Key extends Comparable<Key>>
 					newNode.parent = prevNode;
 				}
 			}
-			setColor(newNode, true);
 			return newNode;
 		}	
-
+		
+		/**
+		 * Adds a node to the RBTree and applies the properties of a RBT to the node
+		 * @param data to be added to the RBTree
+		 */
 		public void insert(Key data)
 		{
 			Node<Key> curNode = addNode(data);
+			
 			if (curNode.compareTo(root) == 0)
 			{
 				setColor(curNode, false);
 			}
 			else if (curNode.parent.isRed == false)
 			{
-				
+				// Do nothing
 			}
 			else
 			{
@@ -211,10 +185,12 @@ public class RedBlackTree<Key extends Comparable<Key>>
 			{
 				y.leftChild.parent = n;
 			}
+			
 			y.parent = n.parent;
 			if (n.parent == null)
 			{
 				root = y;
+				setColor(y, false);
 			}
 			else if (n.compareTo(n.parent.leftChild) == 0)
 			{
@@ -223,69 +199,77 @@ public class RedBlackTree<Key extends Comparable<Key>>
 			else
 			{
 				n.parent.rightChild = y;
-				y.leftChild = n;
-				n.parent = y;
 			}
+			y.leftChild = n;
+			n.parent = y;
 		}
 		
-		public void rotateRight(Node<Key> n)
+		public void rotateRight(Node<Key> y)
 		{
-			Node<Key> y = n.leftChild;
-			n.leftChild = y.rightChild;
-			if (y.rightChild != null)
+			Node<Key> x = y.leftChild;
+			y.leftChild = x.rightChild;
+			if (x.rightChild != null)
 			{
-				y.rightChild.parent = n;
+				x.rightChild.parent = y;
 			}
-			y.parent = n.parent;
-			if (n.parent == null)
+			
+			x.parent = y.parent;
+			if (y.parent == null)
 			{
-				root = y;
+				root = x;
+				setColor(x, false);
 			}
-			else if (n.compareTo(n.parent.rightChild) == 0)
+			else if (y.compareTo(y.parent.rightChild) == 0)
 			{
-				n.parent.rightChild = y;
+				y.parent.rightChild = x;
 			}
 			else
 			{
-				n.parent.leftChild = y;
-				y.rightChild = n;
-				n.parent = y;
+				y.parent.leftChild = x;
 			}
+			x.rightChild = y;
+			y.parent = x;
 		}
 		
 		public void fixTree(Node<Key> node)
 		{
 			Node<Key> curNode = node;
-			Node<Key> aunt = getAunt(curNode);
+			Node<Key> aunt = getAunt(node);
 			
-			while (aunt != null && curNode.isRed == true && aunt.isRed == true)
+			while (curNode.compareTo(root) != 0 && (curNode.parent.isRed == true && aunt != null && aunt.isRed == true))
 			{
-				aunt = getAunt(curNode);
 				setColor(curNode.parent, false);
 				setColor(aunt, false);
 				setColor(curNode.parent.parent, true);
-				curNode = getGrandparent(curNode);
+				curNode = curNode.parent.parent;
+				
+				if (curNode.compareTo(root) == 0)
+				{
+					setColor(curNode, false);
+				}
+				aunt = getAunt(curNode);
 			}
 			
-			if (isLeftChild(curNode.parent.parent, curNode.parent) == true)
+			if (curNode.compareTo(root) != 0 && curNode.parent.isRed == true && (aunt == null || aunt.isRed == false))
 			{
-				if (isLeftChild(curNode.parent, curNode) == false)
+				if (isLeftChild(curNode.parent.parent, curNode.parent) == true)
 				{
-					curNode = curNode.parent;
-					rotateLeft(curNode);
-					
+					if (curNode.parent.rightChild != null && curNode.compareTo(curNode.parent.rightChild) == 0)
+					{
+						curNode = curNode.parent;
+						rotateLeft(curNode);
+					}
 					setColor(curNode.parent, false);
 					setColor(curNode.parent.parent, true);
 					rotateRight(curNode.parent.parent);
 				}
-			}
-			else
-			{
-				if (isLeftChild(curNode.parent, curNode) == true)
+				else
 				{
-					curNode = curNode.parent;
-					rotateRight(curNode);
-					
+					if (curNode.parent.leftChild != null && curNode.compareTo(curNode.parent.leftChild) == 0)
+					{
+						curNode = curNode.parent;
+						rotateRight(curNode);
+					}
 					setColor(curNode.parent, false);
 					setColor(curNode.parent.parent, true);
 					rotateLeft(curNode.parent.parent);
@@ -330,15 +314,17 @@ public class RedBlackTree<Key extends Comparable<Key>>
 		
 		private void setColor(Node<Key> node, boolean color)
 		{
-			if (color == true)
+			if (node != null)
 			{
-				node.isRed = true;
-				node.color = 1;
-			}
-			else
-			{
-				node.isRed = false;
-				node.color = 0;
+				node.isRed = color;
+				if (color == true)
+				{
+					node.color = 0;
+				}
+				else
+				{
+					node.color = 1;
+				}
 			}
 		}
 	}

@@ -38,42 +38,43 @@ public class RBTTester {
     
     public static String makeString(RedBlackTree t)
     {
-       class MyVisitor implements RedBlackTree.Visitor {
+       class MyVisitor implements Visitor {
           String result = "";
-          public void visit(RedBlackTree.Node n)
+          public void visit(Node n)
           {
         	 result = result + n.key;
           }
        };
        MyVisitor v = new MyVisitor();
        t.preOrderVisit(v);
+       System.out.println(v.result);
        return v.result;
     }
 
-    public static String makeStringDetails(RedBlackTree t) {
+    public static String makeStringDetails(RedBlackTree t) 
+    {
+    	class MyVisitor implements Visitor
     	{
-    	       class MyVisitor implements RedBlackTree.Visitor {
-    	          String result = "";
-    	          public void visit(RedBlackTree.Node n)
-    	          {
-    	        	  if (!(n.key).equals(""))
-    	        	  {
-    	        		  if (n.parent != null)
-        	        	  {
-        	        		  result = result +"Color: "+n.color+", Key:"+n.key+" Parent: "+n.parent.key+"\n";    	        		  
-        	        	  }
-    	        		  else
-    	        		  {
-    	        			  result = result +"Color: "+n.color+", Key:"+n.key+" Parent:  "+"\n";
-    	        		  }
-    	        	  }
-    	          }
-    	       };
-    	       MyVisitor v = new MyVisitor();
-    	       t.preOrderVisit(v);
-    	       System.out.println(v.result);
-    	       return v.result;
-    	 }
+    		String result = "";
+    		public void visit(Node n)
+    		{
+	        	 if (!(n.key).equals(""))
+	        	 {
+	        		 if (n.parent != null)
+	        		 {
+  	        		 result = result + "Color: " + n.color + ", Key:" + n.key + " Parent: " + n.parent.key + "\n";    	        		  
+	        		 }
+	        		 else
+	        		 {
+	        			 result = result + "Color: " + n.color + ", Key:" + n.key + " Parent: " + "\n";
+	        		 }
+	        	 }
+	       };
+    	}
+	       MyVisitor v = new MyVisitor();
+	       t.preOrderVisit(v);
+	       System.out.println(v.result);
+	       return v.result;
     }
   // add this in your class  
   //  public static interface Visitor
@@ -99,7 +100,6 @@ public class RBTTester {
   //  	preOrderVisit(n.left, v);
   //  	preOrderVisit(n.right, v);
   //  }
-    
     
  }
   
