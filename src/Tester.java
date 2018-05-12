@@ -1,19 +1,11 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 
-import org.junit.jupiter.api.Test;
-
-import junit.framework.Assert;
-
-class RBTDictionaryTest {
-
-	@Test
-	void test()
+public class Tester
+{
+	public static void main (String [] Args)
 	{
 		try
 		{
@@ -35,28 +27,29 @@ class RBTDictionaryTest {
 			BufferedReader poemReader = new BufferedReader(new FileReader(POEM));
 			
 			String poemLine = "";
+			int count = 0;
 			while ((poemLine = poemReader.readLine()) != null)
 			{
 				String[] allWords = poemLine.split(" ");
 				
-				String spelledWord = "";
-				Node<String> node = dictionaryRBT.lookup(poemWord);
-				if (node != null)
+				for (int i = 0; i < allWords.length; i++)
 				{
-					spelledWord = node.key;
+					String oneWord = allWords[i].replaceAll("[^a-zA-Z- ]", "").toLowerCase();
+					if (dictionaryRBT.lookup(oneWord) == null)
+					{
+						System.out.println(oneWord);
+						count++;
+					}
 				}
-				else
-				{
-					Assert.fail();
-				}
-				
-				assertEquals(spelledWord, poemWord);
 			}
+			
+			poemReader.close();
+			
+			System.out.println("\n# of mispelled or unidentified words: " + count);
 		}
 		catch(Exception fail)
 		{
-			Assert.fail();
+			System.out.println("Failed");
 		}
 	}
-
 }
